@@ -1,7 +1,7 @@
 resource "aws_vpc" "main" {
   cidr_block = "${var.vpc_cidr}"
   tags = {
-  Name = "VPC_1"
+  Name = "VPC_2"
   }
 }
 # Private subnets

@@ -1,4 +1,4 @@
-resource "aws_security_group" "Bastion" {
+resource "aws_security_group" "bastion" {
   name        = "SSH"
   description = "Allow TLS inbound traffic"
   vpc_id      = "${aws_vpc.main.id}"
