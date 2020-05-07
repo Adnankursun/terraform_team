@@ -1,5 +1,5 @@
 resource "aws_security_group" "r1soft" {
-  name        = "Web"
+  name        = "r1soft"
   description = "Allow TLS inbound traffic"
   vpc_id      = "${aws_vpc.main.id}"
 
@@ -29,3 +29,29 @@ resource "aws_security_group" "r1soft" {
     Name = "r1soft"
   }
 }
+
+resource "aws_security_group" "efs" {
+  name        = "efs"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  ingress {
+  from_port = 0
+   to_port = 0
+   protocol = -1
+   cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "efs"
+  }
+ }
+

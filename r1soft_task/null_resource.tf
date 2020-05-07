@@ -1,21 +1,21 @@
 resource "null_resource" "commands_to_run" { 
  
-  provisioner "file" {     //
-    connection {               //this is how i connect provisioner to instance with parameters. it means us thiese parameters and perform task in the provisioner.
+  provisioner "file" {     
+    connection {               
         type            = "ssh"
         user            = "centos"
-        private_key     = "${file("~/.ssh/id_rsa")}" // aws not allow me to connect password so private key location need to provided. 
-        host            = "${aws_instance.centos.public_ip}" //it mmeans do ssh and find instance's ip address
+        private_key     = "${file("~/.ssh/id_rsa")}"  
+        host            = "${aws_instance.centos.public_ip}" 
     } 
-   source = "r1soft.repo"  #machine that you are executing the terraform code 
-   destination = "/tmp/r1soft.repo" #instance that you are creating with your terraform code.
+   source = "r1soft.repo"  
+   destination = "/tmp/r1soft.repo" 
   }
-  provisioner "remote-exec" {     //
-    connection {               //this is how i connect provisioner to instance with parameters. it means us thiese parameters and perform task in the provisioner.
+  provisioner "remote-exec" {     
+    connection {               
         type            = "ssh"
         user            = "centos"
-        private_key     = "${file("~/.ssh/id_rsa")}" // aws not allow me to connect password so private key location need to provided. 
-        host            = "${aws_instance.centos.public_ip}" //it mmeans do ssh and find instance's ip address
+        private_key     = "${file("~/.ssh/id_rsa")}" 
+        host            = "${aws_instance.centos.public_ip}" 
     }
     
     inline = [                             
@@ -32,11 +32,21 @@ resource "null_resource" "commands_to_run" {
       "sudo systemctl start nfs",
       
     ]
-
-
+  
+    inline = [
+      # mount EFS volume
+      # https://docs.aws.amazon.com/efs/latest/ug/gs-step-three-connect-to-ec2-instance.html
+      # create a directory to mount our efs volume to
+      "sudo mkdir -p /mnt/efs",
+      # mount the efs volume
+      "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${aws_efs_file_system.r1soft.dns_name}:/ /mnt/efs",
+      # create fstab entry to ensure automount on reboots
+      # https://docs.aws.amazon.com/efs/latest/ug/mount-fs-auto-mount-onreboot.html#mount-fs-auto-mount-on-creation
+      "sudo su -c \"echo '${aws_efs_file_system.r1soft.dns_name}:/ /mnt/efs nfs4 defaults,vers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport 0 0' >> /etc/fstab\""
+    ]
   }
 
-  
 
- 
+
+
 }
